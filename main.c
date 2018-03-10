@@ -15,9 +15,10 @@
 int main(int argc, char **argv) {
 	int changer = 1;
 	int ret;
-	char buf[BUFSIZE]; /* message buf */
+	char buf[BUFSIZE] = {0}; /* message buf */
 	printf("Hello this is my small udp server\n");
 
+	printf("%d - my buff --0x%x- \n", ret, buf[0]);
 	gpio_init();
 
 	if(udp_init() != 0){
@@ -30,19 +31,44 @@ int main(int argc, char **argv) {
 		if(ret < 0)
 			printf("Error while reading from buffer\n");
 
-		switch(ret){
-			case 32:
-				gpio_set(FORWARD, changer % 2);
-			case 31:
-				gpio_set(BACKWARD, changer % 2);
-			case 30:
-				gpio_set(LEFT, changer % 2);
-			case 29:
-				gpio_set(RIGHT, changer % 2);
-				changer++;
+		if(ret > 30)
+			printf("%d - my buff \n", ret); 
+		if(ret > 30)
+			printf("%d - my buff --0x%x- \n", ret, buf[0]);
+		gpio_set(PFORWARD, 0);
+		gpio_set(PBACKWARD, 0);
+		gpio_set(PLEFT, 0);
+		gpio_set(PRIGHT, 0);
+
+		if(ret > 29){
+			printf("%d - my buff --0x%x- \n", ret, buf[0]);
+			switch(buf[0]){
+				case FORWARD_LEFT:
+					gpio_set(PFORWARD, 1);
+					gpio_set(PLEFT, 1);
+					break;
+				case FORWARD_STR:
+					gpio_set(PFORWARD, 1);
+					break;
+				case FORWARD_RIGHT:
+					gpio_set(PFORWARD, 1);
+					gpio_set(PRIGHT, 1);
+					break;
+				case BACKWARD_LEFT:
+					gpio_set(PBACKWARD, 1);
+					gpio_set(PLEFT, 1);
+					break;
+				case BACKWARD_STR:
+					gpio_set(PBACKWARD, 1);
+					break;
+				case BACKWARD_RIGHT:
+					gpio_set(PBACKWARD, 1);
+					gpio_set(PRIGHT, 1);
+					break;
 			default:
-				printf("%d - my buff %s \n", ret, buf);
+					printf("No given ret value!\n");
+			}
+			printf("xx\n");
 		}
 	}
-
 }

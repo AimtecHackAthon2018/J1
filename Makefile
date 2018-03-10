@@ -22,6 +22,9 @@ DEPS = $(OBJS:.o=.d)
 
 all: $(TARGET)
 
+x: all
+	scp -P 4422 upd pi@192.168.1.23:~/
+
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAFGS) $^ -o $@
 

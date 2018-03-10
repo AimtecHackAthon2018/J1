@@ -18,7 +18,7 @@
 /*
  * https://www.element14.com/community/servlet/JiveServlet/previewBody/73950-102-11-339300/pi3_gpio.png
  */
-int pinmap[MAX_GPIO] = {24, 4, 5, 6};
+int pinmap[MAX_GPIO] = {26, 13, 6, 19};
 
 static int gpio_write(int pin, int value) {
 	static const char s_values_str[] = "01";
@@ -28,7 +28,7 @@ static int gpio_write(int pin, int value) {
 	int fd;
  
 	snprintf(path, VALUE_MAX, "/sys/class/gpio/gpio%d/value", pin);
-	printf("Exporting %d to %s!\n", pin, path);
+	printf("Exporting %d to %s value = %d!\n", pin, path, value);
 	fd = open(path, O_WRONLY);
 	if (-1 == fd) {
 		fprintf(stderr, "Failed to open gpio %d value for writing!\n", pin);
@@ -100,7 +100,7 @@ int gpio_init(){
 }
 
 int gpio_set(int pos, int value){
-	if (-1 == gpio_write(pinmap[pos], pos))
+	if (-1 == gpio_write(pinmap[pos], value))
 	 	return -1;
 	return 0;
 }
