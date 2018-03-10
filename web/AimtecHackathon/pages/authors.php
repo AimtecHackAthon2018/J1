@@ -3,14 +3,9 @@
 ?>
 
 <main role="main">
-<div class="jumbotron">
-  <div class="container">
-    <h1 class="display-3"><img src="img/logoblack.png" alt="logo"></h1>
-  </div>
-</div>
 
 <div class="container">
-  <h2 class="display-4">Team</h2>
+  <h1 class="display-4">Team</h1>
   <div class="row mb-2">
       <div class="col-md-6">
         <div class="card flex-md-row mb-4 box-shadow h-md-200">
