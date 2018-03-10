@@ -4,6 +4,10 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdint.h>
+
+#include <linux/i2c-dev.h>
+//#include <i2c/smbus.h>
 
 #include "gpio.h"
 
@@ -18,83 +22,61 @@
 /*
  * https://www.element14.com/community/servlet/JiveServlet/previewBody/73950-102-11-339300/pi3_gpio.png
  */
+
+uint8_t val = 0;
+int file;
+
 int pinmap[MAX_GPIO] = {24, 4, 5, 6};
+  
+int i2c_reg_write(uint8_t address, uint8_t data){
+// 	struct i2c_rwdr_ioctl_data data = {0};
+// 	data.nmsgs = 2;
+// 	struct i2c_msg msgs[2];
+// 
+// 	msgs[0].addr = address;
+// 	msgs[0].len = 2;
+// 	msgs[0].flags = 0;
+// 	msgs[0].buf = &dataAddr;
+// 
+// 	data.msgs = msgs;
+// 
+// 	ioctl(file, I2C_RDWR, msgset);
+
+	uint8_t bufx[2];
+	bufx[0] = address;
+	bufx[1] = data;
+	if (write(file, &bufx, 2) != 2) {
+		exit(3);
+	}
+}
 
 static int gpio_write(int pin, int value) {
-	static const char s_values_str[] = "01";
- 
-#define VALUE_MAX 30
-	char path[VALUE_MAX];
-	int fd;
- 
-	snprintf(path, VALUE_MAX, "/sys/class/gpio/gpio%d/value", pin);
-	printf("Exporting %d to %s!\n", pin, path);
-	fd = open(path, O_WRONLY);
-	if (-1 == fd) {
-		fprintf(stderr, "Failed to open gpio %d value for writing!\n", pin);
-		return(-1);
-	}
- 
-	if (1 != write(fd, &s_values_str[LOW == value ? 0 : 1], 1)) {
-		fprintf(stderr, "Failed to write value!\n");
-		return(-1);
-	}
- 
-	close(fd);
-	return(0);
+	/* IPOL to val 8b*/
+	i2c_reg_write(0x1,0xff);
+	return 0;
 }
 
-static int gpio_export(int pin) {
-#define BUFFER_MAX 3
-	char buffer[BUFFER_MAX];
-	ssize_t bytes_written;
-	int fd;
-	printf("Exporting %d for writing!\n", pin);
- 
-	fd = open("/sys/class/gpio/export", O_WRONLY);
-	if (-1 == fd) {
-		fprintf(stderr, "Failed to open export %d for writing!\n", pin);
-		return(-1);
-	}
- 
-	bytes_written = snprintf(buffer, BUFFER_MAX, "%d", pin);
-	write(fd, buffer, bytes_written);
-	close(fd);
-	return(0);
-}
- 
- 
 static int gpio_direction(int pin, int dir) {
-	static const char s_directions_str[]  = "in\0out";
- 
-#define DIRECTION_MAX 35
-	char path[DIRECTION_MAX];
-	int fd;
- 
-	snprintf(path, DIRECTION_MAX, "/sys/class/gpio/gpio%d/direction", pin);
-	printf("Exporting %d to %s!\n", pin, path);
-	fd = open(path, O_WRONLY);
-	if (-1 == fd) {
-		fprintf(stderr, "Failed to open gpio direction %d for writing!\n", pin);
-		return(-1);
-	}
- 
-	if (-1 == write(fd, &s_directions_str[IN == dir ? 0 : 3], IN == dir ? 2 : 3)) {
-		fprintf(stderr, "Failed to set direction!\n");
-		return(-1);
-	}
- 
-	close(fd);
-	return(0);
+	/* IODIR to 000000 8b */
+	i2c_reg_write(0x0, 0x0f);
+	return 0;
 }
 
 int gpio_init(){
-	char d = '1';
-	for (int i = 0; i < MAX_GPIO; i++) {
-		if (-1 == gpio_export(pinmap[i]))
-			return(1);
-		if (-1 == gpio_direction(pinmap[i], OUT))
-			return(2);
+	char filename[20];
+  
+	snprintf(filename, 19, "/dev/i2c-%d", 1);
+	file = open(filename, O_RDWR);
+	if (file < 0) {
+		printf("file i2c init error\n");
+		return -1;
+  }
+
+	int addr = 0x20; /* The I2C address */
+
+	if (ioctl(file, I2C_SLAVE, addr) < 0) {
+		printf("i2c init error\n");
+		return 1;
 	}
 	return 0;
 }
@@ -106,23 +88,6 @@ int gpio_set(int pos, int value){
 }
 
 int gpio_deinit(){
-}
-
-static int gpio_unexport(int pin) {
-	char buffer[BUFFER_MAX];
-	ssize_t bytes_written;
-	int fd;
- 
-	fd = open("/sys/class/gpio/unexport", O_WRONLY);
-	if (-1 == fd) {
-		fprintf(stderr, "Failed to open unexport for writing!\n");
-		return(-1);
-	}
- 
-	bytes_written = snprintf(buffer, BUFFER_MAX, "%d", pin);
-	write(fd, buffer, bytes_written);
-	close(fd);
-	return(0);
 }
  
 // static int
