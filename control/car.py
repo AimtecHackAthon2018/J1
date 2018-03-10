@@ -1,7 +1,7 @@
 from utils import *
 import threading
 import websocket, json
-import requests, time
+import requests, time, math
 
 destUri = "ws://192.168.90.54:8080";
 X_API_KEY = "171555a8fe71148a165392904";
@@ -75,7 +75,8 @@ class Car:
 			action = self.END
 
 		print "setting action " + str(action)
-		return action
+		acc = math.sqrt(self.acc_x**2+self.acc_y**2)
+		return [action, theta_car, str(self.position), acc]
 
 	def get_theta(self):
 		r = requests.get('http://192.168.90.218:80')
