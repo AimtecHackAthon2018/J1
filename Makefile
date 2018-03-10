@@ -1,7 +1,8 @@
 # name of the binary to build
 TARGET   = upd
 CC       = gcc
-LD = ld
+CROSS_COMPILE = /usr/bin/arm-linux-gnueabi-
+CC = $(CROSS_COMPILE)gcc
 
 # These flags are used by the implicit rules for C preprocessor flags,
 # C compiler flags, linker flags, and libraries to link (-lfoo options)

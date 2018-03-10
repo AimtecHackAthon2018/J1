@@ -15,8 +15,10 @@
  
 #define PIN  24 /* P1-18 */
 #define POUT 4  /* P1-07 */
-
-int pinmap[MAX_GPIO] = {24, 4, 10, 10};
+/*
+ * https://www.element14.com/community/servlet/JiveServlet/previewBody/73950-102-11-339300/pi3_gpio.png
+ */
+int pinmap[MAX_GPIO] = {24, 4, 5, 6};
 
 static int gpio_write(int pin, int value) {
 	static const char s_values_str[] = "01";
@@ -26,9 +28,10 @@ static int gpio_write(int pin, int value) {
 	int fd;
  
 	snprintf(path, VALUE_MAX, "/sys/class/gpio/gpio%d/value", pin);
+	printf("Exporting %d to %s!\n", pin, path);
 	fd = open(path, O_WRONLY);
 	if (-1 == fd) {
-		fprintf(stderr, "Failed to open gpio value for writing!\n");
+		fprintf(stderr, "Failed to open gpio %d value for writing!\n", pin);
 		return(-1);
 	}
  
@@ -40,17 +43,17 @@ static int gpio_write(int pin, int value) {
 	close(fd);
 	return(0);
 }
- 
 
 static int gpio_export(int pin) {
 #define BUFFER_MAX 3
 	char buffer[BUFFER_MAX];
 	ssize_t bytes_written;
 	int fd;
+	printf("Exporting %d for writing!\n", pin);
  
 	fd = open("/sys/class/gpio/export", O_WRONLY);
 	if (-1 == fd) {
-		fprintf(stderr, "Failed to open export for writing!\n");
+		fprintf(stderr, "Failed to open export %d for writing!\n", pin);
 		return(-1);
 	}
  
@@ -69,9 +72,10 @@ static int gpio_direction(int pin, int dir) {
 	int fd;
  
 	snprintf(path, DIRECTION_MAX, "/sys/class/gpio/gpio%d/direction", pin);
+	printf("Exporting %d to %s!\n", pin, path);
 	fd = open(path, O_WRONLY);
 	if (-1 == fd) {
-		fprintf(stderr, "Failed to open gpio direction for writing!\n");
+		fprintf(stderr, "Failed to open gpio direction %d for writing!\n", pin);
 		return(-1);
 	}
  

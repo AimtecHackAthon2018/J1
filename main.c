@@ -30,13 +30,18 @@ int main(int argc, char **argv) {
 		if(ret < 0)
 			printf("Error while reading from buffer\n");
 
-		if(ret >= 1){
-			printf("my buff %s \n", buf);
-			gpio_set(buf[1] & FORWARD, changer % 2);
-			gpio_set(buf[1] & BACKWARD, changer % 2);
-			gpio_set(buf[1] & LEFT, changer % 2);
-			gpio_set(buf[1] & RIGHT, changer % 2);
-			changer++;
+		switch(ret){
+			case 32:
+				gpio_set(FORWARD, changer % 2);
+			case 31:
+				gpio_set(BACKWARD, changer % 2);
+			case 30:
+				gpio_set(LEFT, changer % 2);
+			case 29:
+				gpio_set(RIGHT, changer % 2);
+				changer++;
+			default:
+				printf("%d - my buff %s \n", ret, buf);
 		}
 	}
 

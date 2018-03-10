@@ -81,18 +81,11 @@ int recieve_udpdata(char * buf, int len){
 	if (n < 0)
 		perror("ERROR in recvfrom");
 
-	/* 
-	 * gethostbyaddr: determine who sent the datagram
-	 */
-	hostp = gethostbyaddr((const char *)&clientaddr.sin_addr.s_addr, 
-			sizeof(clientaddr.sin_addr.s_addr), AF_INET);
-	if (hostp == NULL)
-		perror("ERROR on gethostbyaddr");
 	hostaddrp = inet_ntoa(clientaddr.sin_addr);
 	if (hostaddrp == NULL)
 		perror("ERROR on inet_ntoa\n");
-	printf("server received datagram from %s (%s)\n", 
-			hostp->h_name, hostaddrp);
+	printf("server received datagram from (%s)\n", 
+			hostaddrp);
 	printf("server received %d/%d bytes: %s\n", strlen(buf), n, buf);
 }
 
